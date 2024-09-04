@@ -1,91 +1,70 @@
 #include "Soundex.h"
+#include <unordered_map>
 #include <cctype>
-#include <string>
 
-
-const char Soundex::soundexMap[26] = {
-    //  A     B    C    D    E   F     G   H     I    J    K    L    M    N   O      P   Q    R    S    T    U    V   W     X   Y     Z
-    '0', '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4', '5', '5', '0', '1', '0', '6', '2', '3', '0', '1', '0', '2', '0', '2'
-};
-
-Soundex::Soundex() {}
-
-char Soundex::getSoundexCode(char c) const {
-    c = toupper(c);
-    return (c >= 'A' && c <= 'Z') ? soundexMap[c - 'A'] : '0';
+namespace SoundexMap {
+    static const std::unordered_map<char, char> soundexMap {
+        {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
+        {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'},
+        {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
+        {'D', '3'}, {'T', '3'},
+        {'L', '4'},
+        {'M', '5'}, {'N', '5'},
+        {'R', '6'}
+    };
 }
 
-std::string Soundex::startSoundex(const std::string& name) const {
-    return std::string(1, toupper(name[0]));
-}
-
-bool Soundex::isShortName(const std::string& name) const {
-    return name.length() <= 1;
-}
-
-void Soundex::generateRemainingSoundex(std::string& soundex, const std::string& name) const {
-    char prevCode = getSoundexCode(name[0]);
-    char prevPrevCode = 0;
-
-    for (size_t i = 1; i < name.length() && soundex.length() < 4; ++i) {
-        processCurrentChar(soundex, name[i], prevCode, prevPrevCode);
+char getSoundexCode(char c) {
+    c = std::toupper(c);
+    auto it = SoundexMap::soundexMap.find(c);
+    if (it != SoundexMap::soundexMap.end()) {
+        return it->second;
     }
+    return '0'; // Default case
 }
 
-void Soundex::processCurrentChar(std::string& soundex, char currentChar, char& prevCode, char& prevPrevCode) const {
-    char currentCode = getSoundexCode(currentChar);
+bool SoundexLengthCheck(const std::string& soundex) {
+    return soundex.length() < 4;
+}
 
-    if (shouldAddCode(currentCode, prevCode, prevPrevCode)) {
-        soundex += currentCode;
+bool SoundexCodeCheck(char code, char prevCode) {
+    return (code != '0' && code != prevCode);
+}
+
+// Helper function to append a character to the result, ensuring length tracking
+void appendChar(std::string& result, char code, char& prevCode, size_t& length) {
+    result += (code != '0' && SoundexCodeCheck(code, prevCode)) ? (prevCode = code, code) : '0';
+    length++;
+}
+
+std::string IncrementSoundex(const std::string& soundex, const std::string& name, char prevCode) {
+    std::string result = soundex.substr(0, 1); // Initialize result with the first character of soundex
+    size_t length = 1;
+
+    for (char c : name.substr(1)) {
+        if (length >= 4) break; // Exit early if result already has 4 characters
+
+        char code = getSoundexCode(c);
+        appendChar(result, code, prevCode, length);
     }
-    
-    prevPrevCode = prevCode;
-    prevCode = currentCode;
-}
 
-bool Soundex::shouldAddCode(char currentCode, char prevCode, char prevPrevCode) const {
-    return isValidSoundexCode(currentCode) && 
-           isNewCode(currentCode, prevCode) && 
-           canAddCode(prevPrevCode, currentCode);
-}
-
-bool Soundex::canAddCode(char prevPrevCode, char currentCode) const {
-    return !(isSeparatedByHorW(prevPrevCode) && !isVowel(currentCode));
-}
-
-bool Soundex::isValidSoundexCode(char code) const {
-    return code != '0';
-}
-
-bool Soundex::isNewCode(char code, char prevCode) const {
-    return code != prevCode;
-}
-
-bool Soundex::isSeparatedByHorW(char prevPrevCode) const {
-    return prevPrevCode == 'H' || prevPrevCode == 'W';
-}
-
-void Soundex::padWithZeros(std::string& soundex) const {
-    while (soundex.length() < 4) {
-        soundex += '0';
-    }
+    result.append(4 - result.length(), '0'); // Pad with '0' if result is less than 4 characters
+    return result.substr(0, 4); // Ensure the result is exactly 4 characters long
 }
 
 
 
-std::string Soundex::generateSoundex(const std::string& name) {
+
+std::string generateSoundex(const std::string& name) {
     if (name.empty()) return "";
 
-    std::string soundex = startSoundex(name);
-    if (!isShortName(name)) {
-        generateRemainingSoundex(soundex, name);
-    }
-    padWithZeros(soundex);
-
-    return soundex;
+    std::string soundex(1, std::toupper(name[0]));
+    char prevCode = getSoundexCode(name[0]);
+    return IncrementSoundex(soundex, name, prevCode);
 }
 
-bool Soundex::isVowel(char c) const {
-    c = toupper(c);
-    return (getSoundexCode(c) == '0');
+std::string padSoundex(const std::string& soundex) {
+    std::string paddedSoundex = soundex;
+    paddedSoundex.resize(4, '0'); // Pad with '0' if soundex is less than 4 characters
+    return paddedSoundex;
 }
