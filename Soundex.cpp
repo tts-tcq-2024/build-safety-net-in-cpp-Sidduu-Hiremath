@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <cctype>
 
-namespace SoundexMap {
+namespace SoundexMap { 
     static const std::unordered_map<char, char> soundexMap {
         {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
         {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'},
