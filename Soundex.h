@@ -1,7 +1,7 @@
 #ifndef SOUNDEX_HPP
 #define SOUNDEX_HPP
 
-#include <string>
+#include <string> 
 
 // Declaration of functions
 char getSoundexCode(char c);
