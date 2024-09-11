@@ -1,56 +1,33 @@
 #include "Soundex.h"
 #include <gtest/gtest.h>
 
-
-class SoundexTest : public ::testing::Test {
-protected:
-   
-    SoundexTest() {
-      
-    }
-
-    virtual ~SoundexTest() {
-  
-    }
-
-};
-
-
-TEST_F(SoundexTest, GetSoundexCodeTest) {
-    EXPECT_EQ(getSoundexCode('A'), '0');
-    EXPECT_EQ(getSoundexCode('B'), '1'); 
-    EXPECT_EQ(getSoundexCode('C'), '2');
-    EXPECT_EQ(getSoundexCode('Z'), '2');
+TEST(GetMappedSoundexCodeTest, MappedSoundex) {
+    EXPECT_EQ(Soundex::generateSoundex("Smith"), "S530");
+    EXPECT_EQ(Soundex::generateSoundex("Johnson"), "J525");
+    EXPECT_EQ(Soundex::generateSoundex("Robert"), "R163");
 }
 
-TEST_F(SoundexTest, SoundexLengthCheckTest) {
-    EXPECT_TRUE(SoundexLengthCheck("123")); 
-    EXPECT_FALSE(SoundexLengthCheck("1234")); 
+TEST(HandlesEmptyInputTest, EmptyInput) {
+    EXPECT_EQ(Soundex::generateSoundex(""), "0000");
 }
 
-TEST_F(SoundexTest, SoundexCodeCheckTest) {
-    EXPECT_TRUE(SoundexCodeCheck('1', '0')); 
-    EXPECT_FALSE(SoundexCodeCheck('1', '1'));
+TEST(HandlesAdjacentLettersWithSameCodeTest, AdjacentSameCode) {
+    EXPECT_EQ(Soundex::generateSoundex("Bbb"), "B100");
+    EXPECT_EQ(Soundex::generateSoundex("Dddd"), "D300");
 }
 
-TEST_F(SoundexTest, IncrementSoundexTest) {
-    EXPECT_EQ(IncrementSoundex("S", "Smith", getSoundexCode('S')), "S503");
-    EXPECT_EQ(IncrementSoundex("S", "Johnson", getSoundexCode('S')), "S005"); 
+TEST(HandlesLongNamesTest, LongNames) {
+    EXPECT_EQ(Soundex::generateSoundex("Washington"), "W252");
+    EXPECT_EQ(Soundex::generateSoundex("Robert"), "R163");
 }
 
-TEST_F(SoundexTest, GenerateSoundexTest) {
-    EXPECT_EQ(generateSoundex("Smith"), "S503");
-    EXPECT_EQ(generateSoundex("Johnson"), "J005"); 
-    EXPECT_EQ(generateSoundex(""), ""); 
+TEST(HandlesSpecialCharactersTest, SpecialCharacters) {
+    EXPECT_EQ(Soundex::generateSoundex("O'Connor"), "O256");
+    EXPECT_EQ(Soundex::generateSoundex("Smith-Jones"), "S530");
 }
 
-TEST_F(SoundexTest, PadSoundexTest) {
-    EXPECT_EQ(padSoundex("S5"), "S500"); 
-    EXPECT_EQ(padSoundex("J525"), "J525"); 
+TEST(HandlesVowelsAndNonMappedCharactersTest, VowelsAndNonMapped) {
+    EXPECT_EQ(Soundex::generateSoundex("Aeiou"), "A000");
+    EXPECT_EQ(Soundex::generateSoundex("Hwy"), "H000");
 }
 
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
