@@ -5,7 +5,7 @@
 
 class Soundex {
 public:
-    static std::string generateSoundex(const std::string& name);
+    static std::string generateSoundex(const std::string& name); 
 
 private:
     static char getMappedSoundexCode(char c);
