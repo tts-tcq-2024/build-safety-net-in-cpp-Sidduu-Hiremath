@@ -3,12 +3,13 @@
 
 #include <string> 
 
-// Declaration of functions
-char getSoundexCode(char c);
-bool SoundexLengthCheck(const std::string& soundex);
-bool SoundexCodeCheck(char code, char prevCode);
-std::string IncrementSoundex(const std::string& soundex, const std::string& name, char prevCode);
-std::string generateSoundex(const std::string& name);
-std::string padSoundex(const std::string& soundex);
+class Soundex {
+public:
+    static std::string generateSoundex(const std::string& name);
+
+private:
+    static char getMappedSoundexCode(char c);
+    static bool SoundexCodeCheck(char code, char prevCode);
+};
 
 #endif // SOUNDEX_HPP
