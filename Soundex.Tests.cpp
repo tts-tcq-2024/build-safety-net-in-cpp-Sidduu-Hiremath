@@ -4,7 +4,7 @@
 TEST(GetMappedSoundexCodeTest, MappedSoundex) {
     EXPECT_EQ(Soundex::generateSoundex("Smith"), "S530");
     EXPECT_EQ(Soundex::generateSoundex("Johnson"), "J525");
-    EXPECT_EQ(Soundex::generateSoundex("Robert"), "R163");
+    EXPECT_EQ(Soundex::generateSoundex("Robert"), "R163"); 
 }
 
 TEST(HandlesEmptyInputTest, EmptyInput) {
